@@ -175,7 +175,13 @@ public class PercolatorService extends AbstractIndexComponent {
             String id = Uid.createUid(document.get(UidFieldMapper.NAME)).id();
             try {
                 Fieldable sourceField = document.getFieldable(SourceFieldMapper.NAME);
-                queries.put(id, percolator.parseQuery(id, sourceField.getBinaryValue(), sourceField.getBinaryOffset(), sourceField.getBinaryLength()));
+		Query query = percolator.parseQuery(id, sourceField.getBinaryValue(), sourceField.getBinaryOffset(), sourceField.getBinaryLength());
+		if (query == null) {
+		  logger.warn("null query [{}]", id);
+		  return;
+		} else logger.info("loading a valid query [{}]", id);
+		  
+                queries.put(id, query);
             } catch (Exception e) {
                 logger.warn("failed to add query [{}]", e, id);
             }
